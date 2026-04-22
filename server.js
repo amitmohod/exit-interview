@@ -12,6 +12,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use('/img', express.static(join(__dirname, 'img')));
+
 app.get('/', (req, res) => {
   res.sendFile(join(__dirname, 'index.html'));
 });
