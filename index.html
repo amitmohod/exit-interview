@@ -1636,7 +1636,12 @@ async function startInterview() {
     retellClient.on('agent_stop_talking',  () => setWaveformState('user'));
 
     retellClient.on('update', (update) => {
-      if (update.transcript) renderTranscript(update.transcript);
+      if (update.transcript) {
+        // Clear placeholder on first real transcript entry
+        const empty = document.querySelector('.transcript-empty');
+        if (empty) empty.remove();
+        renderTranscript(update.transcript);
+      }
     });
 
     retellClient.on('error', (err) => {
@@ -1658,20 +1663,28 @@ async function startInterview() {
 
 function renderTranscript(transcript) {
   const body = document.getElementById('transcript-body');
-  body.innerHTML = '';
+  const existing = body.querySelectorAll('.transcript-entry');
 
-  transcript.forEach(entry => {
-    const isAgent    = entry.role === 'agent';
+  transcript.forEach((entry, i) => {
+    const isAgent = entry.role === 'agent';
     const speakerName = isAgent ? 'Tara' : employeeName;
-    const div = document.createElement('div');
-    div.className = 'transcript-entry';
-    div.innerHTML = `
-      <div class="transcript-line">
-        <span class="transcript-speaker-name ${isAgent ? 'agent' : 'user'}">${speakerName}:</span>
-        &nbsp;${entry.content}
-      </div>`;
-    body.appendChild(div);
+
+    if (existing[i]) {
+      // Only update the text node if content changed — no DOM removal
+      const textNode = existing[i].querySelector('.transcript-line');
+      const next = `<span class="transcript-speaker-name ${isAgent ? 'agent' : 'user'}">${speakerName}:</span>&nbsp;${entry.content}`;
+      if (textNode && textNode.innerHTML !== next) textNode.innerHTML = next;
+    } else {
+      // New entry — append only
+      const div = document.createElement('div');
+      div.className = 'transcript-entry';
+      div.innerHTML = `<div class="transcript-line"><span class="transcript-speaker-name ${isAgent ? 'agent' : 'user'}">${speakerName}:</span>&nbsp;${entry.content}</div>`;
+      body.appendChild(div);
+    }
   });
+
+  // Remove stale entries if transcript shrank
+  for (let i = transcript.length; i < existing.length; i++) existing[i].remove();
 
   body.scrollTop = body.scrollHeight;
 }
