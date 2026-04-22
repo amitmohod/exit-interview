@@ -82,93 +82,284 @@
       min-height: 540px;
     }
 
-    /* Illustration panel */
+    /* ── ILLUSTRATION PANEL ── */
     .entry-illus {
       width: 46%;
       flex-shrink: 0;
-      background: linear-gradient(160deg, #0c1f3f 0%, #1a3a6b 40%, #0e2a52 70%, #152238 100%);
       position: relative;
       overflow: hidden;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-end;
+      padding: 0 0 44px;
+
+      background: url('/img/bg_left.png') center center / cover no-repeat;
     }
 
+    /* Dark overlay to ensure text/badges remain readable over the image */
     .entry-illus::before {
       content: '';
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(ellipse at 30% 70%, rgba(232,69,10,0.18) 0%, transparent 55%),
-        radial-gradient(ellipse at 75% 25%, rgba(37,99,235,0.20) 0%, transparent 50%);
+      background: linear-gradient(
+        to bottom,
+        rgba(5,12,28,0.15) 0%,
+        rgba(5,12,28,0.05) 50%,
+        rgba(5,12,28,0.55) 100%
+      );
+      pointer-events: none;
+      z-index: 0;
     }
 
-    /* SVG illustration scene */
-    .illus-scene {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    /* Horizontal separator line at bottom */
+    .entry-illus::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
     }
 
-    /* Decorative rings */
-    .illus-rings {
+    /* Central illustration SVG */
+    .illus-visual {
       position: absolute;
       inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      pointer-events: none;
+      z-index: 1;
     }
-    .illus-ring {
+
+    /* Avatars row */
+    .illus-avatars {
       position: absolute;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .illus-ring:nth-child(1) { width: 200px; height: 200px; }
-    .illus-ring:nth-child(2) { width: 300px; height: 300px; }
-    .illus-ring:nth-child(3) { width: 400px; height: 400px; animation: ring-pulse 4s ease-in-out infinite; }
-
-    @keyframes ring-pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    .illus-content {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      padding: 40px 32px;
-    }
-
-    .illus-icon-wrap {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      border: 1.5px solid rgba(255,255,255,0.15);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -58%);
       display: flex;
+      align-items: flex-end;
+      gap: 0;
+      z-index: 2;
+    }
+
+    .illus-avatar-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    /* Person figure */
+    .fig-person {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .fig-head {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: #C8956A;
+      position: relative;
+      overflow: hidden;
+    }
+    .fig-head::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 50%;
+      background: #3D2314;
+      border-radius: 50% 50% 0 0;
+    }
+    .fig-body {
+      width: 64px; height: 60px;
+      background: #1E3A5F;
+      border-radius: 12px 12px 0 0;
+      margin-top: 2px;
+      position: relative;
+    }
+    .fig-body::before {
+      content: '';
+      position: absolute;
+      top: 8px; left: 50%; transform: translateX(-50%);
+      width: 18px; height: 36px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 4px;
+    }
+
+    /* AI figure */
+    .fig-ai-head {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1E40AF, #2563EB);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 24px rgba(37,99,235,0.5);
+      position: relative;
+    }
+    .fig-ai-head::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(37,99,235,0.4);
+      animation: ai-pulse 2s ease-in-out infinite;
+    }
+    @keyframes ai-pulse {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50%       { transform: scale(1.12); opacity: 1; }
+    }
+    .fig-ai-body {
+      width: 64px; height: 60px;
+      background: linear-gradient(160deg, #1E3A8A, #1D4ED8);
+      border-radius: 12px 12px 0 0;
+      margin-top: 2px;
+    }
+
+    /* Conversation bridge between the two figures */
+    .illus-bridge {
+      width: 80px;
+      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 24px;
+      gap: 6px;
+      padding-bottom: 16px;
     }
 
-    .illus-tagline {
-      color: rgba(255,255,255,0.9);
-      font-size: 18px;
+    .bridge-waves {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 32px;
+    }
+
+    .bridge-bar {
+      width: 3px;
+      border-radius: 2px;
+      background: linear-gradient(to top, rgba(37,99,235,0.3), rgba(232,69,10,0.7));
+      animation: bridge-anim 1.2s ease-in-out infinite;
+    }
+    .bridge-bar:nth-child(1) { height: 8px;  animation-delay: 0s;    }
+    .bridge-bar:nth-child(2) { height: 18px; animation-delay: 0.1s;  }
+    .bridge-bar:nth-child(3) { height: 28px; animation-delay: 0.2s;  }
+    .bridge-bar:nth-child(4) { height: 20px; animation-delay: 0.3s;  }
+    .bridge-bar:nth-child(5) { height: 12px; animation-delay: 0.4s;  }
+    .bridge-bar:nth-child(6) { height: 22px; animation-delay: 0.5s;  }
+    .bridge-bar:nth-child(7) { height: 14px; animation-delay: 0.6s;  }
+
+    @keyframes bridge-anim {
+      0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+      50%       { transform: scaleY(1);   opacity: 1;   }
+    }
+
+    /* Desk / table */
+    .illus-desk {
+      position: absolute;
+      bottom: 138px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 260px;
+      z-index: 1;
+    }
+    .desk-top {
+      height: 10px;
+      background: rgba(255,255,255,0.10);
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .desk-legs {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+    .desk-leg {
+      width: 6px;
+      height: 30px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 0 0 3px 3px;
+    }
+
+    /* Feature badges */
+    .illus-badges {
+      position: absolute;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .illus-badges.left  { left: 18px;  top: calc(50% + 57px); transform: translateY(-50%); }
+    .illus-badges.right { right: 18px; top: calc(50% + 57px); transform: translateY(-50%); }
+
+    .illus-badge {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 8px;
+      padding: 8px 11px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      backdrop-filter: blur(6px);
+      white-space: nowrap;
+    }
+
+    .badge-icon {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+    .badge-icon.orange { background: rgba(232,69,10,0.25); }
+    .badge-icon.blue   { background: rgba(37,99,235,0.30); }
+    .badge-icon.green  { background: rgba(22,163,74,0.25); }
+
+    .badge-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .badge-label {
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .badge-value {
+      font-size: 12px;
       font-weight: 700;
-      margin-bottom: 10px;
-      line-height: 1.3;
+      color: rgba(255,255,255,0.85);
+      line-height: 1;
     }
 
-    .illus-sub {
-      color: rgba(255,255,255,0.55);
-      font-size: 13px;
-      line-height: 1.7;
+    /* Bottom copy */
+    .illus-copy {
+      position: relative;
+      z-index: 4;
+      text-align: center;
+      padding: 0 32px;
+    }
+
+    .illus-copy-headline {
+      font-size: 20px;
+      font-weight: 800;
+      color: #FFFFFF;
+      line-height: 1.25;
+      margin-bottom: 10px;
+      letter-spacing: -0.3px;
+    }
+
+    .illus-copy-headline em {
+      font-style: normal;
+      color: #E8450A;
+    }
+
+    .illus-copy-sub {
+      font-size: 12.5px;
       font-weight: 400;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.7;
     }
 
     /* Form panel */
@@ -999,28 +1190,45 @@
 
     <!-- Illustration panel -->
     <div class="entry-illus">
-      <div class="illus-rings">
-        <div class="illus-ring"></div>
-        <div class="illus-ring"></div>
-        <div class="illus-ring"></div>
-      </div>
-      <div class="illus-content">
-        <div class="illus-icon-wrap">
-          <!-- Mic + waveform icon -->
-          <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="26" cy="22" r="9" stroke="rgba(255,255,255,0.85)" stroke-width="2.5" fill="none"/>
-            <path d="M26 31v6M20 37h12" stroke="rgba(255,255,255,0.85)" stroke-width="2.5" stroke-linecap="round"/>
-            <path d="M16 26c0 5.523 4.477 10 10 10s10-4.477 10-10" stroke="rgba(255,255,255,0.85)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <!-- waveform lines -->
-            <line x1="8" y1="22" x2="8" y2="28" stroke="rgba(232,69,10,0.8)" stroke-width="2" stroke-linecap="round"/>
-            <line x1="12" y1="18" x2="12" y2="32" stroke="rgba(232,69,10,0.8)" stroke-width="2" stroke-linecap="round"/>
-            <line x1="40" y1="22" x2="40" y2="28" stroke="rgba(232,69,10,0.8)" stroke-width="2" stroke-linecap="round"/>
-            <line x1="44" y1="18" x2="44" y2="32" stroke="rgba(232,69,10,0.8)" stroke-width="2" stroke-linecap="round"/>
-          </svg>
+
+      <!-- Left badges -->
+      <div class="illus-badges left">
+        <div class="illus-badge">
+          <div class="badge-icon orange">🔒</div>
+          <div class="badge-text">
+            <span class="badge-label">Privacy</span>
+            <span class="badge-value">Confidential</span>
+          </div>
         </div>
-        <div class="illus-tagline">Your Voice Matters</div>
-        <div class="illus-sub">A confidential AI-powered conversation to understand your journey and help shape a better workplace.</div>
+        <div class="illus-badge">
+          <div class="badge-icon green">✓</div>
+          <div class="badge-text">
+            <span class="badge-label">Format</span>
+            <span class="badge-value">Voice-based</span>
+          </div>
+        </div>
       </div>
+
+      <!-- Right badges -->
+      <div class="illus-badges right">
+        <div class="illus-badge">
+          <div class="badge-icon blue">⏱</div>
+          <div class="badge-text">
+            <span class="badge-label">Duration</span>
+            <span class="badge-value">~20 minutes</span>
+          </div>
+        </div>
+        <div class="illus-badge">
+          <div class="badge-icon blue">✦</div>
+          <div class="badge-text">
+            <span class="badge-label">Powered by</span>
+            <span class="badge-value">AI Agent</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom copy -->
+
     </div>
 
     <!-- Form panel -->
