@@ -12,6 +12,8 @@
   <script src="https://cdn.jsdelivr.net/npm/livekit-client@latest/dist/livekit-client.umd.js"></script>
   <script>window.livekitClient = window.LivekitClient;</script>
   <script src="https://cdn.jsdelivr.net/npm/retell-client-js-sdk@latest/dist/index.umd.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1178,6 +1180,105 @@
       white-space: nowrap;
     }
     .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── DASHBOARD LINK ── */
+    .dashboard-link {
+      display: block;
+      font-size: 13px;
+      color: #9AA0B0;
+      text-decoration: none;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--font);
+      padding: 0;
+      margin-top: 14px;
+    }
+    .dashboard-link:hover { text-decoration: underline; }
+
+    /* ── DASHBOARD MODAL ── */
+    .dashboard-modal-box {
+      width: 92vw;
+      height: 90vh;
+      background: white;
+      border-radius: 16px;
+      overflow-y: auto;
+      padding: 0;
+      position: relative;
+    }
+    .dashboard-close-btn {
+      position: sticky;
+      top: 16px;
+      float: right;
+      margin: 16px 16px 0 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.08);
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      flex-shrink: 0;
+    }
+    .dashboard-close-btn:hover { background: rgba(0,0,0,0.15); }
+
+    /* ── DASHBOARD SCOPED STYLES ── */
+    .dash-scope {
+      --blue: #1A2B5F; --blue-mid: #2D4A9A; --blue-light: #EEF2FF;
+      --orange: #E8450A; --text: #1A1A2E; --text-sec: #5A6070; --text-muted: #9AA0B0;
+      --border: #E2E6F0; --white: #fff; --bg: #F4F6FA;
+      --green: #16A34A; --green-light: #DCFCE7;
+      --red: #DC2626; --red-light: #FEE2E2;
+      --amber: #D97706; --amber-light: #FEF3C7;
+      --info-light: #EEF2FF;
+      --font: 'DM Sans', sans-serif;
+      font-family: var(--font); background: var(--bg); color: var(--text); padding: 32px 24px;
+    }
+    .dash-scope .page{max-width:1100px;margin:0 auto;}
+    .dash-scope .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+    .dash-scope .header-left{display:flex;align-items:center;gap:16px;}
+    .dash-scope .logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:20px;color:var(--text);}
+    .dash-scope .logo-icon{width:28px;height:28px;}
+    .dash-scope .title-block h1{font-size:18px;font-weight:600;color:var(--text);}
+    .dash-scope .title-block p{font-size:13px;color:var(--text-sec);margin-top:2px;}
+    .dash-scope .demo-badge{background:var(--amber-light);color:var(--amber);padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid #FCD34D;}
+    .dash-scope .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px;}
+    .dash-scope .kpi{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;}
+    .dash-scope .kpi-label{font-size:12px;color:var(--text-sec);margin-bottom:8px;}
+    .dash-scope .kpi-value{font-size:26px;font-weight:600;line-height:1;}
+    .dash-scope .kpi-sub{font-size:11px;margin-top:6px;}
+    .dash-scope .kpi-sub.up{color:var(--red);}
+    .dash-scope .kpi-sub.down{color:var(--green);}
+    .dash-scope .kpi-sub.neutral{color:var(--text-muted);}
+    .dash-scope .kpi-sub.warn{color:var(--amber);}
+    .dash-scope .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+    .dash-scope .card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px;}
+    .dash-scope .card-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+    .dash-scope .card-sub{font-size:11px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;}
+    .dash-scope .legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;}
+    .dash-scope .legend span{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-sec);}
+    .dash-scope .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+    .dash-scope .chart-wrap{position:relative;width:100%;}
+    .dash-scope .workload-bar{display:flex;border-radius:8px;overflow:hidden;height:38px;margin-bottom:10px;}
+    .dash-scope .wl-seg{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;}
+    .dash-scope .insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+    .dash-scope .insight{border-radius:10px;padding:14px;border-left:3px solid transparent;}
+    .dash-scope .insight.red{background:var(--red-light);border-left-color:var(--red);}
+    .dash-scope .insight.amber{background:var(--amber-light);border-left-color:var(--amber);}
+    .dash-scope .insight.blue{background:var(--info-light);border-left-color:var(--blue-mid);}
+    .dash-scope .insight.green{background:var(--green-light);border-left-color:var(--green);}
+    .dash-scope .insight-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:5px;}
+    .dash-scope .insight.red .insight-title{color:var(--red);}
+    .dash-scope .insight.amber .insight-title{color:var(--amber);}
+    .dash-scope .insight.blue .insight-title{color:var(--blue-mid);}
+    .dash-scope .insight.green .insight-title{color:var(--green);}
+    .dash-scope .insight p{font-size:12px;color:var(--text-sec);line-height:1.6;}
+    .dash-scope .footer-note{font-size:11px;color:var(--text-muted);border-top:1px solid var(--border);padding-top:14px;line-height:1.7;}
+    @media(max-width:700px){.dash-scope .charts-grid,.dash-scope .insight-grid{grid-template-columns:1fr;}}
   </style>
 </head>
 <body>
@@ -1254,6 +1355,7 @@
       <button class="btn-primary" id="btn-entry-proceed" onclick="proceedToSetup()">
         Continue
       </button>
+      <button class="dashboard-link" style="text-align:right;" onclick="openDashboard()">View Dashboard</button>
     </div>
 
   </div>
@@ -1449,6 +1551,7 @@
     <div id="feedback-questions"></div>
 
     <button class="btn-submit" onclick="submitFeedback()">Submit Feedback</button>
+    <div style="text-align:center;margin-top:16px;"><button class="dashboard-link" style="display:inline;" onclick="openDashboard()">View Dashboard</button></div>
   </div>
 </div>
 
@@ -1478,6 +1581,158 @@
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- DASHBOARD MODAL -->
+<div id="dashboard-modal" style="position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;">
+  <div class="dashboard-modal-box">
+    <button class="dashboard-close-btn" onclick="closeDashboard()">&#x2715;</button>
+    <div class="dash-scope">
+      <div class="page">
+
+        <div class="header">
+          <div class="header-left">
+            <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+              <circle cx="16" cy="16" r="14" fill="#1A2B5F"/>
+              <path d="M10 16 L14 20 L22 11" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="24" cy="9" r="4" fill="#E8450A"/>
+            </svg>
+            <div class="title-block">
+              <h1>Exit Interview Analytics</h1>
+              <p>Etihad Airways · Jan 2023 – Dec 2024</p>
+            </div>
+          </div>
+          <span class="demo-badge">Illustrative demo data</span>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="kpi-label">Total exits (2yr)</div>
+            <div class="kpi-value">1,847</div>
+            <div class="kpi-sub neutral">of ~21,000 workforce</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Avg attrition rate</div>
+            <div class="kpi-value">8.7%</div>
+            <div class="kpi-sub up">↑ 1.4pp vs industry avg</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Avg tenure at exit</div>
+            <div class="kpi-value">3.2 yrs</div>
+            <div class="kpi-sub up">↓ from 4.1 in 2022</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Interview completion</div>
+            <div class="kpi-value">61%</div>
+            <div class="kpi-sub warn">Form-based baseline</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Safety flags raised</div>
+            <div class="kpi-value">14</div>
+            <div class="kpi-sub up">6 escalated to Corp Safety</div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="card">
+            <div class="card-title">Top reasons for leaving</div>
+            <div class="card-sub">Q1: What prompted you to seek alternative employment?</div>
+            <div class="legend">
+              <span><span class="legend-dot" style="background:#378ADD"></span>2023</span>
+              <span><span class="legend-dot" style="background:#B5D4F4;outline:1px dashed #378ADD"></span>2024</span>
+            </div>
+            <div class="chart-wrap" style="height:240px"><canvas id="c1"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Attrition by department</div>
+            <div class="card-sub">Voluntary exits as % of dept headcount</div>
+            <div class="legend">
+              <span><span class="legend-dot" style="background:#1D9E75"></span>2023</span>
+              <span><span class="legend-dot" style="background:#9FE1CB;outline:1px dashed #1D9E75"></span>2024</span>
+            </div>
+            <div class="chart-wrap" style="height:240px"><canvas id="c2"></canvas></div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="card">
+            <div class="card-title">Monthly attrition trend</div>
+            <div class="card-sub">Voluntary exits per month, 2023 vs 2024</div>
+            <div class="legend">
+              <span><span class="legend-dot" style="background:#7F77DD"></span>2023</span>
+              <span><span class="legend-dot" style="background:#CECBF6;outline:1px dashed #7F77DD"></span>2024</span>
+            </div>
+            <div class="chart-wrap" style="height:200px"><canvas id="c3"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Supervisor effectiveness scores</div>
+            <div class="card-sub">Q3: % rating supervisor "almost always" across dimensions</div>
+            <div class="chart-wrap" style="height:200px"><canvas id="c4"></canvas></div>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="card">
+            <div class="card-title">Job experience ratings</div>
+            <div class="card-sub">Q4: % rating "good" or "excellent"</div>
+            <div class="chart-wrap" style="height:210px"><canvas id="c5"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">What new jobs are offering</div>
+            <div class="card-sub">Q10: Top themes — competitive intelligence from open responses</div>
+            <div class="chart-wrap" style="height:210px"><canvas id="c6"></canvas></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-title">Workload distribution</div>
+          <div class="card-sub">Q5: How would you describe your usual workload? (% of exiting employees)</div>
+          <div class="workload-bar">
+            <div class="wl-seg" style="width:39%;background:#DC2626;">Too great 39%</div>
+            <div class="wl-seg" style="width:31%;background:#D97706;">About right 31%</div>
+            <div class="wl-seg" style="width:18%;background:#16A34A;">Varied 18%</div>
+            <div class="wl-seg" style="width:12%;background:#9AA0B0;">Too light 12%</div>
+          </div>
+          <p style="font-size:11px;color:#DC2626;">39% cited excessive workload — highest in Ground Ops (54%) and Cabin Crew (47%)</p>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-title" style="margin-bottom:14px;">Actionable insights</div>
+          <div class="insight-grid">
+            <div class="insight red">
+              <div class="insight-title">Career growth crisis</div>
+              <p>34% cite career advancement as #1 reason. Only 29% rate growth potential as good/excellent. Structured career pathing urgently needed across operational roles.</p>
+            </div>
+            <div class="insight red">
+              <div class="insight-title">Recognition gap</div>
+              <p>Only 31% of supervisors "almost always" provide recognition. Exits citing lack of recognition grew 8pp YoY. Manager recognition training is high-ROI.</p>
+            </div>
+            <div class="insight amber">
+              <div class="insight-title">Ground ops burnout</div>
+              <p>22% dept attrition — 54% say workload too great. Matches industry benchmark of ~20%. Immediate resourcing review recommended.</p>
+            </div>
+            <div class="insight amber">
+              <div class="insight-title">Early tenure exits</div>
+              <p>Avg tenure dropped from 4.1 to 3.2 yrs. 41% of exits happen in years 2–3. Onboarding and early career experience need a structural fix.</p>
+            </div>
+            <div class="insight blue">
+              <div class="insight-title">Flex work competitive gap</div>
+              <p>29% say new employer offers flexible work that Etihad doesn't. Corporate functions should review hybrid policy as a retention lever.</p>
+            </div>
+            <div class="insight green">
+              <div class="insight-title">Policy compliance is strong</div>
+              <p>67% rate supervisors "almost always" on policy compliance — highest Q3 dimension. A foundation to build broader manager trust on.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          Data basis: Etihad headcount ~21,000 (Revelio Labs, 2024). Attrition rates modelled on aviation industry benchmarks — ground ops ~20%, cabin crew ~18% (Transport Association, 2023). Departure reason distributions based on sector-wide exit survey patterns. All figures are illustrative for demo purposes only and do not represent actual Etihad Airways data.
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 // ── CONFIG ──────────────────────────────
@@ -1737,6 +1992,43 @@ function submitFeedback() {
   showScreen('screen-thankyou');
 }
 
+// ── DASHBOARD ────────────────────────────
+function openDashboard() {
+  document.getElementById('dashboard-modal').style.display = 'flex';
+  renderDashboardCharts();
+}
+
+function closeDashboard() {
+  document.getElementById('dashboard-modal').style.display = 'none';
+  ['c1','c2','c3','c4','c5','c6'].forEach(id => {
+    const c = Chart.getChart(id);
+    if (c) c.destroy();
+  });
+}
+
+function renderDashboardCharts() {
+  ['c1','c2','c3','c4','c5','c6'].forEach(id => {
+    const c = Chart.getChart(id);
+    if (c) c.destroy();
+  });
+
+  const tc='rgba(0,0,0,0.45)',gc='rgba(0,0,0,0.06)';
+  const hOpts=(ax)=>({indexAxis:ax||'x',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.parsed[ax==='y'?'x':'y']+'%'}}},scales:{x:{ticks:{color:tc,font:{size:11}},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}});
+
+  new Chart(document.getElementById('c1'),{type:'bar',data:{labels:['Career advancement','Compensation','Lack of recognition','Work conditions','Company culture','Business direction'],datasets:[{label:'2023',data:[31,26,17,15,13,10],backgroundColor:'#378ADD',borderRadius:3},{label:'2024',data:[34,28,19,17,14,11],backgroundColor:'#B5D4F4',borderWidth:1,borderColor:'#378ADD',borderRadius:3}]},options:{...hOpts('y'),scales:{x:{ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
+
+  new Chart(document.getElementById('c2'),{type:'bar',data:{labels:['Ground ops','Cabin crew','Customer service','Engineering','Corporate','Flight ops'],datasets:[{label:'2023',data:[20,17,15,11,8,7],backgroundColor:'#1D9E75',borderRadius:3},{label:'2024',data:[22,18,16,12,9,8],backgroundColor:'#9FE1CB',borderWidth:1,borderColor:'#1D9E75',borderRadius:3}]},options:{...hOpts('y'),scales:{x:{ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
+
+  const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  new Chart(document.getElementById('c3'),{type:'line',data:{labels:mo,datasets:[{label:'2023',data:[58,62,81,70,65,72,68,75,88,64,59,54],borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderDash:[]},{label:'2024',data:[62,66,85,74,70,78,72,80,92,68,63,57],borderColor:'#CECBF6',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderDash:[4,3]}]},options:{...hOpts('x'),scales:{x:{ticks:{color:tc,font:{size:10},autoSkip:false,maxRotation:0},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
+
+  new Chart(document.getElementById('c4'),{type:'bar',data:{labels:['Follows policy','Teamwork','Fair treatment','Resolves complaints','Listens/suggests','Recognition'],datasets:[{label:'Score',data:[67,58,52,44,39,31],backgroundColor:['#1D9E75','#378ADD','#378ADD','#D97706','#D97706','#DC2626'],borderRadius:3}]},options:{...hOpts('y'),scales:{x:{min:0,max:100,ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
+
+  new Chart(document.getElementById('c5'),{type:'bar',data:{labels:['Dept cooperation','Job satisfaction','Comms w/ manager','Training received','Company comms','Growth potential'],datasets:[{label:'Good/Excellent %',data:[61,48,44,41,38,29],backgroundColor:'#7F77DD',borderRadius:3}]},options:{...hOpts('y'),scales:{x:{min:0,max:100,ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
+
+  new Chart(document.getElementById('c6'),{type:'bar',data:{labels:['Career progression','Higher salary','Flexible work','Better culture','More recognition','Location'],datasets:[{label:'% mentions',data:[41,38,29,22,18,12],backgroundColor:'#D85A30',borderRadius:3}]},options:{...hOpts('y'),scales:{x:{ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
+}
+
 // ── INIT ─────────────────────────────────
 document.getElementById('input-name').addEventListener('keydown', e => {
   if (e.key === 'Enter') proceedToSetup();
@@ -1744,6 +2036,10 @@ document.getElementById('input-name').addEventListener('keydown', e => {
 
 buildWaveform();
 buildFeedbackQuestions();
+
+document.getElementById('dashboard-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeDashboard();
+});
 </script>
 </body>
 </html>
