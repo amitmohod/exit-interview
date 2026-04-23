@@ -1279,6 +1279,14 @@
     .dash-scope .insight p{font-size:12px;color:var(--text-sec);line-height:1.6;}
     .dash-scope .footer-note{font-size:11px;color:var(--text-muted);border-top:1px solid var(--border);padding-top:14px;line-height:1.7;}
     @media(max-width:700px){.dash-scope .charts-grid,.dash-scope .insight-grid{grid-template-columns:1fr;}}
+    .dash-scope .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;}
+    .dash-scope .filter-group{display:flex;align-items:center;gap:6px;}
+    .dash-scope .filter-label{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin-right:2px;white-space:nowrap;}
+    .dash-scope .pill{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;font-family:var(--font);cursor:pointer;color:var(--text);transition:all 0.15s;}
+    .dash-scope .pill:hover{border-color:var(--blue-mid);}
+    .dash-scope .pill.active{background:var(--blue);border-color:var(--blue);color:var(--white);}
+    .dash-scope .filter-select{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;font-family:var(--font);color:var(--text);cursor:pointer;outline:none;}
+    .dash-scope .filter-select:focus{border-color:var(--blue-mid);}
   </style>
 </head>
 <body>
@@ -1603,28 +1611,57 @@
         <div class="kpi-grid">
           <div class="kpi">
             <div class="kpi-label">Total exits (2yr)</div>
-            <div class="kpi-value">1,847</div>
+            <div class="kpi-value" id="kpi-exits">1,847</div>
             <div class="kpi-sub neutral">of ~21,000 workforce</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">Avg attrition rate</div>
-            <div class="kpi-value">8.7%</div>
+            <div class="kpi-value" id="kpi-attrition">8.7%</div>
             <div class="kpi-sub up">↑ 1.4pp vs industry avg</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">Avg tenure at exit</div>
-            <div class="kpi-value">3.2 yrs</div>
+            <div class="kpi-value" id="kpi-tenure">3.2 yrs</div>
             <div class="kpi-sub up">↓ from 4.1 in 2022</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">Interview completion</div>
-            <div class="kpi-value">61%</div>
+            <div class="kpi-value" id="kpi-completion">61%</div>
             <div class="kpi-sub warn">Form-based baseline</div>
           </div>
           <div class="kpi">
             <div class="kpi-label">Safety flags raised</div>
-            <div class="kpi-value">14</div>
+            <div class="kpi-value" id="kpi-safety">14</div>
             <div class="kpi-sub up">6 escalated to Corp Safety</div>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <div class="filter-group">
+            <span class="filter-label">Year</span>
+            <button class="pill active" data-filter="year" data-value="both" onclick="setPill(this,'year')">Both</button>
+            <button class="pill" data-filter="year" data-value="2023" onclick="setPill(this,'year')">2023</button>
+            <button class="pill" data-filter="year" data-value="2024" onclick="setPill(this,'year')">2024</button>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">Department</span>
+            <select class="filter-select" id="dept-filter" onchange="applyFilters()">
+              <option value="all">All Departments</option>
+              <option value="ground-ops">Ground Ops</option>
+              <option value="cabin-crew">Cabin Crew</option>
+              <option value="customer-service">Customer Service</option>
+              <option value="engineering">Engineering</option>
+              <option value="corporate">Corporate</option>
+              <option value="flight-ops">Flight Ops</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">Tenure</span>
+            <button class="pill active" data-filter="tenure" data-value="all" onclick="setPill(this,'tenure')">All</button>
+            <button class="pill" data-filter="tenure" data-value="0-1" onclick="setPill(this,'tenure')">0–1 yr</button>
+            <button class="pill" data-filter="tenure" data-value="1-3" onclick="setPill(this,'tenure')">1–3 yrs</button>
+            <button class="pill" data-filter="tenure" data-value="3-5" onclick="setPill(this,'tenure')">3–5 yrs</button>
+            <button class="pill" data-filter="tenure" data-value="5+" onclick="setPill(this,'tenure')">5+ yrs</button>
           </div>
         </div>
 
@@ -1682,13 +1719,13 @@
         <div class="card" style="margin-bottom:16px;">
           <div class="card-title">Workload distribution</div>
           <div class="card-sub">Q5: How would you describe your usual workload? (% of exiting employees)</div>
-          <div class="workload-bar">
+          <div class="workload-bar" id="workload-bar">
             <div class="wl-seg" style="width:39%;background:#DC2626;">Too great 39%</div>
             <div class="wl-seg" style="width:31%;background:#D97706;">About right 31%</div>
             <div class="wl-seg" style="width:18%;background:#16A34A;">Varied 18%</div>
             <div class="wl-seg" style="width:12%;background:#9AA0B0;">Too light 12%</div>
           </div>
-          <p style="font-size:11px;color:#DC2626;">39% cited excessive workload — highest in Ground Ops (54%) and Cabin Crew (47%)</p>
+          <p id="workload-note" style="font-size:11px;color:#DC2626;">39% cited excessive workload — highest in Ground Ops (54%) and Cabin Crew (47%)</p>
         </div>
 
         <div class="card" style="margin-bottom:16px;">
@@ -1988,41 +2025,147 @@ function submitFeedback() {
   showScreen('screen-thankyou');
 }
 
-// ── DASHBOARD ────────────────────────────
+// ── DASHBOARD DATA ────────────────────────
+const dashboardData = {
+  'all': {
+    '2023': { reasons:[31,26,17,15,13,10], deptAttrition:[20,17,15,11,8,7], monthly:[58,62,81,70,65,72,68,75,88,64,59,54], supervisor:[67,58,52,44,39,31], jobRatings:[61,48,44,41,38,29], newJobOffers:[41,38,29,22,18,12], workload:[39,31,18,12], kpis:{exits:880,attrition:'8.1%',tenure:'3.4 yrs',completion:'59%',safety:6} },
+    '2024': { reasons:[34,28,19,17,14,11], deptAttrition:[22,18,16,12,9,8], monthly:[62,66,85,74,70,78,72,80,92,68,63,57], supervisor:[67,58,52,44,39,31], jobRatings:[61,48,44,41,38,29], newJobOffers:[41,38,29,22,18,12], workload:[39,31,18,12], kpis:{exits:967,attrition:'9.3%',tenure:'3.0 yrs',completion:'63%',safety:8} }
+  },
+  'ground-ops': {
+    '2023': { reasons:[28,22,15,21,11,8], deptAttrition:[20,17,15,11,8,7], monthly:[11,12,16,14,13,14,13,15,17,13,12,11], supervisor:[65,52,48,40,35,25], jobRatings:[55,42,40,38,32,24], newJobOffers:[38,44,22,18,15,14], workload:[54,28,11,7], kpis:{exits:220,attrition:'20.0%',tenure:'2.8 yrs',completion:'55%',safety:3} },
+    '2024': { reasons:[30,24,16,23,12,9], deptAttrition:[22,18,16,12,9,8], monthly:[12,13,18,15,14,15,14,17,19,14,13,12], supervisor:[66,53,49,41,36,26], jobRatings:[56,43,41,39,33,25], newJobOffers:[39,46,23,19,16,14], workload:[56,26,11,7], kpis:{exits:242,attrition:'22.0%',tenure:'2.5 yrs',completion:'58%',safety:4} }
+  },
+  'cabin-crew': {
+    '2023': { reasons:[27,32,18,16,13,9], deptAttrition:[20,17,15,11,8,7], monthly:[10,11,14,12,11,13,12,13,16,11,10,10], supervisor:[68,57,51,43,38,29], jobRatings:[59,45,43,39,36,27], newJobOffers:[35,42,34,20,17,11], workload:[47,30,15,8], kpis:{exits:190,attrition:'17.0%',tenure:'3.0 yrs',completion:'57%',safety:2} },
+    '2024': { reasons:[29,35,20,18,14,10], deptAttrition:[22,18,16,12,9,8], monthly:[11,12,15,13,12,14,13,15,17,12,11,11], supervisor:[69,58,52,44,39,30], jobRatings:[60,46,44,40,37,28], newJobOffers:[36,44,36,21,18,12], workload:[49,29,14,8], kpis:{exits:209,attrition:'18.5%',tenure:'2.7 yrs',completion:'60%',safety:2} }
+  },
+  'customer-service': {
+    '2023': { reasons:[33,25,20,14,12,10], deptAttrition:[20,17,15,11,8,7], monthly:[9,10,13,11,10,12,11,12,15,10,9,9], supervisor:[66,57,51,43,38,30], jobRatings:[60,47,43,40,37,28], newJobOffers:[40,37,30,22,19,11], workload:[42,32,16,10], kpis:{exits:157,attrition:'15.0%',tenure:'3.1 yrs',completion:'60%',safety:1} },
+    '2024': { reasons:[35,27,22,15,13,11], deptAttrition:[22,18,16,12,9,8], monthly:[10,11,14,12,11,13,12,13,16,11,10,10], supervisor:[67,58,52,44,39,31], jobRatings:[61,48,44,41,38,29], newJobOffers:[41,38,31,23,20,12], workload:[44,31,15,10], kpis:{exits:173,attrition:'16.5%',tenure:'2.9 yrs',completion:'62%',safety:1} }
+  },
+  'engineering': {
+    '2023': { reasons:[36,24,16,12,14,12], deptAttrition:[20,17,15,11,8,7], monthly:[7,7,9,8,8,8,8,9,10,7,7,6], supervisor:[69,60,54,46,42,34], jobRatings:[63,50,46,43,40,32], newJobOffers:[44,36,26,24,16,10], workload:[35,34,20,11], kpis:{exits:115,attrition:'11.0%',tenure:'3.6 yrs',completion:'64%',safety:0} },
+    '2024': { reasons:[38,26,18,13,15,13], deptAttrition:[22,18,16,12,9,8], monthly:[8,8,10,9,9,9,9,10,11,8,8,7], supervisor:[70,61,55,47,43,35], jobRatings:[64,51,47,44,41,33], newJobOffers:[46,38,27,25,17,11], workload:[36,34,20,10], kpis:{exits:128,attrition:'12.2%',tenure:'3.3 yrs',completion:'66%',safety:0} }
+  },
+  'corporate': {
+    '2023': { reasons:[38,20,14,10,15,16], deptAttrition:[20,17,15,11,8,7], monthly:[5,5,7,6,5,6,5,6,7,5,5,4], supervisor:[72,65,60,50,48,40], jobRatings:[67,54,52,48,46,38], newJobOffers:[46,32,36,28,14,8], workload:[28,38,22,12], kpis:{exits:83,attrition:'8.0%',tenure:'3.8 yrs',completion:'68%',safety:0} },
+    '2024': { reasons:[40,22,15,11,16,18], deptAttrition:[22,18,16,12,9,8], monthly:[5,6,8,7,6,7,6,7,8,6,6,5], supervisor:[73,66,61,51,49,41], jobRatings:[68,55,53,49,47,40], newJobOffers:[48,33,38,29,15,9], workload:[29,37,22,12], kpis:{exits:96,attrition:'9.2%',tenure:'3.5 yrs',completion:'71%',safety:0} }
+  },
+  'flight-ops': {
+    '2023': { reasons:[30,28,19,13,12,11], deptAttrition:[20,17,15,11,8,7], monthly:[4,5,6,5,5,5,5,6,7,5,4,4], supervisor:[67,57,51,43,38,30], jobRatings:[60,46,43,40,37,27], newJobOffers:[40,40,26,20,17,12], workload:[38,32,18,12], kpis:{exits:72,attrition:'7.0%',tenure:'3.5 yrs',completion:'62%',safety:0} },
+    '2024': { reasons:[32,30,21,14,13,12], deptAttrition:[22,18,16,12,9,8], monthly:[5,5,7,6,6,6,6,7,8,5,5,5], supervisor:[68,58,52,44,39,31], jobRatings:[61,47,44,41,38,28], newJobOffers:[41,42,27,21,18,13], workload:[40,31,17,12], kpis:{exits:84,attrition:'8.1%',tenure:'3.2 yrs',completion:'64%',safety:0} }
+  }
+};
+
+const tenureMultipliers = {
+  'all': [1.0,1.0,1.0,1.0,1.0,1.0],
+  '0-1': [0.7,0.9,1.0,1.3,1.5,0.8],
+  '1-3': [1.3,1.0,1.3,1.0,0.9,0.8],
+  '3-5': [1.0,1.3,1.0,0.9,0.8,1.3],
+  '5+':  [0.8,1.1,0.9,0.8,1.0,1.6]
+};
+const tenureLabel = {'all':null,'0-1':'0.6 yrs','1-3':'2.1 yrs','3-5':'4.0 yrs','5+':'7.2 yrs'};
+
+let activeYear = 'both';
+let activeTenure = 'all';
+
+function setPill(btn, group) {
+  document.querySelectorAll(`.pill[data-filter="${group}"]`).forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  if (group === 'year') activeYear = btn.dataset.value;
+  if (group === 'tenure') activeTenure = btn.dataset.value;
+  applyFilters();
+}
+
+function _avgArr(a, b) { return a.map((v,i) => Math.round((v+b[i])/2)); }
+
+function _getSlice(dept, year) {
+  const d = dashboardData[dept];
+  if (year === 'both') {
+    const a=d['2023'], b=d['2024'];
+    return {
+      reasons:       _avgArr(a.reasons,b.reasons),
+      deptAttrition: _avgArr(a.deptAttrition,b.deptAttrition),
+      monthly:       _avgArr(a.monthly,b.monthly),
+      supervisor:    _avgArr(a.supervisor,b.supervisor),
+      jobRatings:    _avgArr(a.jobRatings,b.jobRatings),
+      newJobOffers:  _avgArr(a.newJobOffers,b.newJobOffers),
+      workload:      _avgArr(a.workload,b.workload),
+      kpis:{ exits:a.kpis.exits+b.kpis.exits, attrition:((parseFloat(a.kpis.attrition)+parseFloat(b.kpis.attrition))/2).toFixed(1)+'%', tenure:((parseFloat(a.kpis.tenure)+parseFloat(b.kpis.tenure))/2).toFixed(1)+' yrs', completion:Math.round((parseInt(a.kpis.completion)+parseInt(b.kpis.completion))/2)+'%', safety:a.kpis.safety+b.kpis.safety }
+    };
+  }
+  return d[year];
+}
+
+function _applyTenure(reasons, tenure) {
+  const m = tenureMultipliers[tenure];
+  const raw = reasons.map((v,i) => Math.max(1, Math.round(v*m[i])));
+  const origSum = reasons.reduce((a,b)=>a+b,0);
+  const rawSum  = raw.reduce((a,b)=>a+b,0);
+  return raw.map(v => Math.round(v*origSum/rawSum));
+}
+
+function applyFilters() {
+  const dept  = document.getElementById('dept-filter').value;
+  const slice = _getSlice(dept, activeYear);
+  const reasons = _applyTenure(slice.reasons, activeTenure);
+  const tc='rgba(0,0,0,0.45)',gc='rgba(0,0,0,0.06)';
+  const hOpts=(ax)=>({indexAxis:ax||'x',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.parsed[ax==='y'?'x':'y']+'%'}}},scales:{x:{ticks:{color:tc,font:{size:11}},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}});
+
+  ['c1','c2','c3','c4','c5','c6'].forEach(id=>{ const c=Chart.getChart(id); if(c) c.destroy(); });
+
+  const is23=activeYear==='2023', is24=activeYear==='2024', isBoth=activeYear==='both';
+
+  const c1ds = isBoth ? [{label:'Both',data:reasons,backgroundColor:'#378ADD',borderRadius:3}]
+    : is23 ? [{label:'2023',data:reasons,backgroundColor:'#378ADD',borderRadius:3}]
+           : [{label:'2024',data:reasons,backgroundColor:'#B5D4F4',borderWidth:1,borderColor:'#378ADD',borderRadius:3}];
+  new Chart(document.getElementById('c1'),{type:'bar',data:{labels:['Career advancement','Compensation','Lack of recognition','Work conditions','Company culture','Business direction'],datasets:c1ds},options:{...hOpts('y'),scales:{x:{ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
+
+  const c2a=dashboardData[dept]['2023'].deptAttrition, c2b=dashboardData[dept]['2024'].deptAttrition;
+  const c2ds = isBoth ? [{label:'2023',data:c2a,backgroundColor:'#1D9E75',borderRadius:3},{label:'2024',data:c2b,backgroundColor:'#9FE1CB',borderWidth:1,borderColor:'#1D9E75',borderRadius:3}]
+    : is23 ? [{label:'2023',data:c2a,backgroundColor:'#1D9E75',borderRadius:3}]
+           : [{label:'2024',data:c2b,backgroundColor:'#9FE1CB',borderWidth:1,borderColor:'#1D9E75',borderRadius:3}];
+  new Chart(document.getElementById('c2'),{type:'bar',data:{labels:['Ground ops','Cabin crew','Customer service','Engineering','Corporate','Flight ops'],datasets:c2ds},options:{...hOpts('y'),scales:{x:{ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
+
+  const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const c3a=dashboardData[dept]['2023'].monthly, c3b=dashboardData[dept]['2024'].monthly;
+  const c3ds = isBoth ? [{label:'2023',data:c3a,borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderDash:[]},{label:'2024',data:c3b,borderColor:'#CECBF6',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderDash:[4,3]}]
+    : is23 ? [{label:'2023',data:c3a,borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderDash:[]}]
+           : [{label:'2024',data:c3b,borderColor:'#CECBF6',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderDash:[4,3]}];
+  new Chart(document.getElementById('c3'),{type:'line',data:{labels:mo,datasets:c3ds},options:{...hOpts('x'),scales:{x:{ticks:{color:tc,font:{size:10},autoSkip:false,maxRotation:0},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
+
+  new Chart(document.getElementById('c4'),{type:'bar',data:{labels:['Follows policy','Teamwork','Fair treatment','Resolves complaints','Listens/suggests','Recognition'],datasets:[{label:'Score',data:slice.supervisor,backgroundColor:['#1D9E75','#378ADD','#378ADD','#D97706','#D97706','#DC2626'],borderRadius:3}]},options:{...hOpts('y'),scales:{x:{min:0,max:100,ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
+
+  new Chart(document.getElementById('c5'),{type:'bar',data:{labels:['Dept cooperation','Job satisfaction','Comms w/ manager','Training received','Company comms','Growth potential'],datasets:[{label:'Good/Excellent %',data:slice.jobRatings,backgroundColor:'#7F77DD',borderRadius:3}]},options:{...hOpts('y'),scales:{x:{min:0,max:100,ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
+
+  new Chart(document.getElementById('c6'),{type:'bar',data:{labels:['Career progression','Higher salary','Flexible work','Better culture','More recognition','Location'],datasets:[{label:'% mentions',data:slice.newJobOffers,backgroundColor:'#D85A30',borderRadius:3}]},options:{...hOpts('y'),scales:{x:{ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
+
+  const wl=slice.workload, wlColors=['#DC2626','#D97706','#16A34A','#9AA0B0'], wlLabels=['Too great','About right','Varied','Too light'];
+  document.getElementById('workload-bar').innerHTML = wl.map((w,i)=>`<div class="wl-seg" style="width:${w}%;background:${wlColors[i]};">${wlLabels[i]} ${w}%</div>`).join('');
+  document.getElementById('workload-note').textContent = `${wl[0]}% cited excessive workload among exiting employees`;
+
+  const k=slice.kpis;
+  document.getElementById('kpi-exits').textContent      = Number(k.exits).toLocaleString();
+  document.getElementById('kpi-attrition').textContent  = k.attrition;
+  document.getElementById('kpi-tenure').textContent     = tenureLabel[activeTenure] || k.tenure;
+  document.getElementById('kpi-completion').textContent = k.completion;
+  document.getElementById('kpi-safety').textContent     = k.safety;
+}
+
+// ── DASHBOARD OPEN/CLOSE ──────────────────
 function openDashboard() {
+  // Reset filters to default state each time the modal opens
+  activeYear = 'both'; activeTenure = 'all';
+  document.querySelectorAll('.pill[data-filter="year"]').forEach(p => p.classList.toggle('active', p.dataset.value==='both'));
+  document.querySelectorAll('.pill[data-filter="tenure"]').forEach(p => p.classList.toggle('active', p.dataset.value==='all'));
+  document.getElementById('dept-filter').value = 'all';
   document.getElementById('dashboard-modal').style.display = 'flex';
-  renderDashboardCharts();
+  applyFilters();
 }
 
 function closeDashboard() {
   document.getElementById('dashboard-modal').style.display = 'none';
-  ['c1','c2','c3','c4','c5','c6'].forEach(id => {
-    const c = Chart.getChart(id);
-    if (c) c.destroy();
-  });
-}
-
-function renderDashboardCharts() {
-  ['c1','c2','c3','c4','c5','c6'].forEach(id => {
-    const c = Chart.getChart(id);
-    if (c) c.destroy();
-  });
-
-  const tc='rgba(0,0,0,0.45)',gc='rgba(0,0,0,0.06)';
-  const hOpts=(ax)=>({indexAxis:ax||'x',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.parsed[ax==='y'?'x':'y']+'%'}}},scales:{x:{ticks:{color:tc,font:{size:11}},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}});
-
-  new Chart(document.getElementById('c1'),{type:'bar',data:{labels:['Career advancement','Compensation','Lack of recognition','Work conditions','Company culture','Business direction'],datasets:[{label:'2023',data:[31,26,17,15,13,10],backgroundColor:'#378ADD',borderRadius:3},{label:'2024',data:[34,28,19,17,14,11],backgroundColor:'#B5D4F4',borderWidth:1,borderColor:'#378ADD',borderRadius:3}]},options:{...hOpts('y'),scales:{x:{ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
-
-  new Chart(document.getElementById('c2'),{type:'bar',data:{labels:['Ground ops','Cabin crew','Customer service','Engineering','Corporate','Flight ops'],datasets:[{label:'2023',data:[20,17,15,11,8,7],backgroundColor:'#1D9E75',borderRadius:3},{label:'2024',data:[22,18,16,12,9,8],backgroundColor:'#9FE1CB',borderWidth:1,borderColor:'#1D9E75',borderRadius:3}]},options:{...hOpts('y'),scales:{x:{ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
-
-  const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  new Chart(document.getElementById('c3'),{type:'line',data:{labels:mo,datasets:[{label:'2023',data:[58,62,81,70,65,72,68,75,88,64,59,54],borderColor:'#7F77DD',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderDash:[]},{label:'2024',data:[62,66,85,74,70,78,72,80,92,68,63,57],borderColor:'#CECBF6',backgroundColor:'transparent',tension:0.4,pointRadius:3,borderDash:[4,3]}]},options:{...hOpts('x'),scales:{x:{ticks:{color:tc,font:{size:10},autoSkip:false,maxRotation:0},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
-
-  new Chart(document.getElementById('c4'),{type:'bar',data:{labels:['Follows policy','Teamwork','Fair treatment','Resolves complaints','Listens/suggests','Recognition'],datasets:[{label:'Score',data:[67,58,52,44,39,31],backgroundColor:['#1D9E75','#378ADD','#378ADD','#D97706','#D97706','#DC2626'],borderRadius:3}]},options:{...hOpts('y'),scales:{x:{min:0,max:100,ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
-
-  new Chart(document.getElementById('c5'),{type:'bar',data:{labels:['Dept cooperation','Job satisfaction','Comms w/ manager','Training received','Company comms','Growth potential'],datasets:[{label:'Good/Excellent %',data:[61,48,44,41,38,29],backgroundColor:'#7F77DD',borderRadius:3}]},options:{...hOpts('y'),scales:{x:{min:0,max:100,ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
-
-  new Chart(document.getElementById('c6'),{type:'bar',data:{labels:['Career progression','Higher salary','Flexible work','Better culture','More recognition','Location'],datasets:[{label:'% mentions',data:[41,38,29,22,18,12],backgroundColor:'#D85A30',borderRadius:3}]},options:{...hOpts('y'),scales:{x:{ticks:{color:tc,font:{size:11},callback:v=>v+'%'},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{color:gc}}}}});
+  ['c1','c2','c3','c4','c5','c6'].forEach(id => { const c=Chart.getChart(id); if(c) c.destroy(); });
 }
 
 // ── INIT ─────────────────────────────────
