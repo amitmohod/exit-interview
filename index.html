@@ -1346,6 +1346,7 @@
         <a class="imocha-logo" href="#">
           <img src="/img/imocha_logo.jpg" alt="iMocha" />
         </a>
+        <div id="prospect-context" style="display:none;margin-top:6px;font-size:13px;font-weight:600;color:var(--text-3);letter-spacing:0.01em;"></div>
       </div>
 
       <div class="form-group">
@@ -1484,7 +1485,7 @@
       <a class="imocha-logo" href="#">
         <img src="/img/imocha_logo.jpg" alt="iMocha" />
       </a>
-      <span class="interview-session-label">AI Exit Interview</span>
+      <span class="interview-session-label" id="interview-session-label">AI Exit Interview</span>
     </div>
     <button class="btn-end" onclick="requestEndInterview()">End Interview</button>
   </div>
@@ -1772,9 +1773,10 @@
 const SERVER_URL = ''; // relative — works both locally (via server) and in production
 
 // ── STATE ───────────────────────────────
-let employeeName = '';
-let retellClient = null;
-let callActive = false;
+let employeeName  = '';
+let retellClient  = null;
+let callActive    = false;
+let activeProspect = null;
 
 // ── FEEDBACK QUESTIONS ───────────────────
 const feedbackQuestions = [
@@ -1835,6 +1837,22 @@ function setWaveformState(state) {
   }
 }
 
+// ── PROSPECT DETECTION ───────────────────
+(async function detectProspect() {
+  const match = window.location.pathname.match(/^\/demo\/([^/]+)/);
+  if (!match) return;
+  try {
+    const res = await fetch(`/prospects/${match[1]}`);
+    if (!res.ok) return;
+    activeProspect = await res.json();
+    const el = document.getElementById('prospect-context');
+    if (el && activeProspect) {
+      el.textContent = `${activeProspect.companyName} · ${activeProspect.jobTitle}`;
+      el.style.display = 'block';
+    }
+  } catch (_) { /* silently ignore — falls back to default flow */ }
+})();
+
 // ── SCREEN 1: ENTRY ──────────────────────
 function proceedToSetup() {
   const input = document.getElementById('input-name').value.trim();
@@ -1882,6 +1900,10 @@ function proceedToInterview() {
   document.getElementById('user-chip-avatar').textContent = getInitials(employeeName);
   document.getElementById('user-chip-name').textContent   = employeeName + ' (you)';
   document.getElementById('user-chip').style.display = 'flex';
+  if (activeProspect) {
+    document.getElementById('interview-session-label').textContent =
+      `${activeProspect.companyName} · ${activeProspect.jobTitle} Exit Interview`;
+  }
   buildWaveform();
   showScreen('screen-interview');
 }
@@ -1896,7 +1918,10 @@ async function startInterview() {
     const res = await fetch(`${SERVER_URL}/start-call`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ employee_name: employeeName }),
+      body: JSON.stringify({
+        employee_name: employeeName,
+        ...(activeProspect ? { prospect_id: activeProspect.id } : {}),
+      }),
     });
 
     if (!res.ok) {

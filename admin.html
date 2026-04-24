@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>iMocha · Prospect Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2563EB;--blue-hover:#1D4ED8;--blue-light:#EFF6FF;--blue-border:#BFDBFE;
+  --navy:#1E1B4B;--orange:#E8450A;
+  --text:#111827;--text-2:#374151;--text-3:#6B7280;
+  --border:#E5E7EB;--bg:#F3F4F6;--white:#FFFFFF;
+  --green:#16A34A;--green-bg:#DCFCE7;--green-border:#BBF7D0;
+  --red:#DC2626;--red-bg:#FEE2E2;
+  --amber:#D97706;--amber-bg:#FEF3C7;
+  --font:'Plus Jakarta Sans',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── HEADER ── */
+.admin-header{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:0 32px;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:10;
+}
+.admin-header-left{display:flex;align-items:center;gap:14px;}
+.admin-header-logo img{height:28px;width:auto;display:block;}
+.admin-header-divider{width:1px;height:22px;background:var(--border);}
+.admin-header-title{font-size:15px;font-weight:600;color:var(--text);}
+.admin-header-badge{background:var(--blue-light);color:var(--blue);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid var(--blue-border);}
+
+/* ── CONTENT ── */
+.admin-content{max-width:1000px;margin:0 auto;padding:32px 24px;}
+
+/* ── PIN GATE ── */
+.pin-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(17,24,39,0.6);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+}
+.pin-card{
+  background:var(--white);border-radius:16px;padding:48px 44px;
+  width:100%;max-width:400px;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.18);
+}
+.pin-logo{display:flex;justify-content:center;margin-bottom:28px;}
+.pin-logo img{height:32px;}
+.pin-heading{font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.pin-sub{font-size:13.5px;color:var(--text-3);margin-bottom:28px;line-height:1.6;}
+.pin-input{
+  width:100%;padding:13px 16px;text-align:center;letter-spacing:6px;
+  font-family:var(--font);font-size:20px;font-weight:600;color:var(--text);
+  border:1.5px solid var(--border);border-radius:8px;background:var(--bg);
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s;margin-bottom:10px;
+}
+.pin-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.12);background:var(--white);}
+.pin-error{font-size:13px;color:var(--red);min-height:18px;margin-bottom:14px;display:none;}
+.pin-error.show{display:block;}
+.btn-pin{
+  width:100%;padding:13px;background:var(--blue);color:white;border:none;
+  border-radius:8px;font-family:var(--font);font-size:15px;font-weight:600;
+  cursor:pointer;transition:background 0.2s;
+}
+.btn-pin:hover{background:var(--blue-hover);}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.shake{animation:shake 0.35s ease;}
+
+/* ── SECTION HEADING ── */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-head h2{font-size:17px;font-weight:700;color:var(--text);}
+.count-badge{background:var(--bg);border:1px solid var(--border);color:var(--text-3);font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;}
+
+/* ── ADD FORM CARD ── */
+.form-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin-bottom:32px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
+.form-card-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:20px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;align-items:end;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:6px;}
+.field input,.field select{
+  width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;
+  font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg);
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s;
+}
+.field input:focus,.field select:focus{
+  border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.12);background:var(--white);
+}
+.field input::placeholder{color:var(--text-3);}
+.form-footer{display:flex;align-items:center;justify-content:space-between;margin-top:16px;min-height:22px;}
+.form-msg{font-size:13px;}
+.form-msg.success{color:var(--green);}
+.form-msg.error{color:var(--red);}
+.btn-add{
+  padding:10px 22px;background:var(--blue);color:white;border:none;border-radius:8px;
+  font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;
+  transition:background 0.2s;white-space:nowrap;
+}
+.btn-add:hover{background:var(--blue-hover);}
+.btn-add:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* ── PROSPECTS GRID ── */
+.prospects-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:700px){.prospects-grid,.form-row{grid-template-columns:1fr;}}
+.empty-state{grid-column:1/-1;text-align:center;padding:56px 24px;color:var(--text-3);font-size:14px;line-height:1.7;}
+.empty-state strong{display:block;font-size:16px;font-weight:600;color:var(--text-2);margin-bottom:6px;}
+
+/* ── PROSPECT CARD ── */
+.prospect-card{
+  background:var(--white);border:1px solid var(--border);border-radius:14px;padding:22px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:0;
+}
+.card-top{margin-bottom:12px;}
+.card-company{font-size:17px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:4px;}
+.card-job{font-size:13px;color:var(--text-3);margin-bottom:8px;}
+.use-case-badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;letter-spacing:0.02em;}
+.use-case-badge.recruiting{background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-border);}
+.use-case-badge.exit-interview{background:#FFF3EF;color:var(--orange);border:1px solid #FCCBB5;}
+.use-case-badge.skill-validation{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+
+.card-divider{height:1px;background:var(--border);margin:12px 0;}
+
+.card-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.card-row:last-of-type{margin-bottom:0;}
+.row-label{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;}
+.row-value{font-size:13px;color:var(--text-2);display:flex;align-items:center;gap:6px;min-width:0;}
+.masked-id{font-family:monospace;font-size:13px;color:var(--text-2);letter-spacing:0.03em;}
+
+/* Status toggle */
+.status-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
+.toggle-track{
+  width:38px;height:22px;border-radius:11px;background:#D1D5DB;
+  position:relative;transition:background 0.2s;flex-shrink:0;
+}
+.toggle-track.on{background:var(--green);}
+.toggle-thumb{
+  position:absolute;top:3px;left:3px;width:16px;height:16px;
+  border-radius:50%;background:white;transition:transform 0.2s;
+  box-shadow:0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle-track.on .toggle-thumb{transform:translateX(16px);}
+.toggle-label{font-size:13px;font-weight:500;}
+.toggle-label.on{color:var(--green);}
+.toggle-label.off{color:var(--text-3);}
+
+/* Demo URL */
+.demo-url-text{font-size:12px;color:var(--text-3);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
+.icon-btn{
+  background:none;border:1px solid var(--border);border-radius:6px;
+  padding:4px 7px;cursor:pointer;color:var(--text-3);font-size:12px;
+  display:inline-flex;align-items:center;gap:4px;transition:all 0.15s;white-space:nowrap;
+  flex-shrink:0;
+}
+.icon-btn:hover{border-color:var(--blue);color:var(--blue);}
+.icon-btn.copied{border-color:var(--green);color:var(--green);}
+
+/* Card actions */
+.card-actions{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+.btn-edit,.btn-delete{
+  padding:7px 14px;border-radius:7px;font-family:var(--font);font-size:13px;
+  font-weight:500;cursor:pointer;transition:all 0.15s;border:1.5px solid var(--border);
+  background:transparent;color:var(--text-2);
+}
+.btn-edit:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
+.btn-delete{color:var(--red);}
+.btn-delete:hover{border-color:var(--red);background:var(--red-bg);}
+
+/* Inline delete confirm */
+.delete-confirm{display:none;align-items:center;gap:8px;font-size:13px;color:var(--red);}
+.delete-confirm.show{display:flex;}
+.delete-confirm span{font-weight:500;}
+.btn-confirm-del,.btn-cancel-del{
+  padding:4px 12px;border-radius:6px;font-family:var(--font);font-size:12px;
+  font-weight:600;cursor:pointer;border:none;
+}
+.btn-confirm-del{background:var(--red);color:white;}
+.btn-confirm-del:hover{background:#B91C1C;}
+.btn-cancel-del{background:var(--bg);color:var(--text-2);}
+.btn-cancel-del:hover{background:var(--border);}
+
+/* Inline edit */
+.edit-state{display:none;flex-direction:column;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+.edit-state.show{display:flex;}
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.edit-field label{display:block;font-size:12px;font-weight:600;color:var(--text-3);margin-bottom:4px;}
+.edit-field input,.edit-field select{
+  width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:7px;
+  font-family:var(--font);font-size:13px;color:var(--text);background:var(--bg);outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.edit-field input:focus,.edit-field select:focus{
+  border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.10);background:var(--white);
+}
+.edit-actions{display:flex;gap:8px;align-items:center;}
+.btn-save{
+  padding:8px 18px;background:var(--blue);color:white;border:none;border-radius:7px;
+  font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;
+}
+.btn-save:hover{background:var(--blue-hover);}
+.btn-cancel-edit{
+  padding:8px 14px;background:transparent;border:1.5px solid var(--border);border-radius:7px;
+  font-family:var(--font);font-size:13px;color:var(--text-2);cursor:pointer;
+}
+.btn-cancel-edit:hover{border-color:var(--text-3);}
+.edit-msg{font-size:12px;color:var(--red);}
+</style>
+</head>
+<body>
+
+<!-- PIN GATE -->
+<div class="pin-overlay" id="pin-overlay">
+  <div class="pin-card">
+    <div class="pin-logo">
+      <img src="/img/imocha_logo.jpg" alt="iMocha"/>
+    </div>
+    <h2 class="pin-heading">Internal Access Only</h2>
+    <p class="pin-sub">Enter your PIN to access the prospect management dashboard.</p>
+    <input type="password" class="pin-input" id="pin-input" maxlength="10" placeholder="••••••" autocomplete="off"/>
+    <p class="pin-error" id="pin-error">Incorrect PIN. Please try again.</p>
+    <button class="btn-pin" onclick="submitPin()">Continue</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="admin-header">
+  <div class="admin-header-left">
+    <div class="admin-header-logo">
+      <img src="/img/imocha_logo.jpg" alt="iMocha"/>
+    </div>
+    <div class="admin-header-divider"></div>
+    <span class="admin-header-title">Prospect Management</span>
+  </div>
+  <span class="admin-header-badge">Internal</span>
+</header>
+
+<!-- CONTENT -->
+<main class="admin-content" id="admin-content" style="display:none;">
+
+  <!-- ADD FORM -->
+  <div class="form-card">
+    <div class="form-card-title">Add New Prospect</div>
+    <div class="form-row">
+      <div class="field">
+        <label>Company Name</label>
+        <input type="text" id="f-company" placeholder="e.g. Etihad Airways" required/>
+      </div>
+      <div class="field">
+        <label>Job Title</label>
+        <input type="text" id="f-jobtitle" placeholder="e.g. Cabin Crew" required/>
+      </div>
+      <div class="field">
+        <label>Use Case</label>
+        <select id="f-usecase">
+          <option value="recruiting">Recruiting</option>
+          <option value="exit-interview">Exit Interview</option>
+          <option value="skill-validation">Skill Validation</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Retell Agent ID</label>
+        <input type="text" id="f-agentid" placeholder="agent_id from Retell" required/>
+      </div>
+    </div>
+    <div class="form-footer">
+      <span class="form-msg" id="form-msg"></span>
+      <button class="btn-add" id="btn-add" onclick="addProspect()">Add Prospect</button>
+    </div>
+  </div>
+
+  <!-- PROSPECTS GRID -->
+  <div class="section-head">
+    <h2>All Prospects</h2>
+    <span class="count-badge" id="count-badge">0 prospects</span>
+  </div>
+  <div class="prospects-grid" id="prospects-grid"></div>
+
+</main>
+
+<script>
+const PIN = 'imocha2025';
+
+// ── PIN GATE ──────────────────────────────────────────────────────────────
+function submitPin() {
+  const val = document.getElementById('pin-input').value;
+  const err = document.getElementById('pin-error');
+  const inp = document.getElementById('pin-input');
+  if (val === PIN) {
+    sessionStorage.setItem('adminAuthenticated', '1');
+    document.getElementById('pin-overlay').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+    loadProspects();
+  } else {
+    err.classList.add('show');
+    inp.classList.add('shake');
+    inp.value = '';
+    setTimeout(() => inp.classList.remove('shake'), 400);
+  }
+}
+
+document.getElementById('pin-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitPin();
+  document.getElementById('pin-error').classList.remove('show');
+});
+
+if (sessionStorage.getItem('adminAuthenticated') === '1') {
+  document.getElementById('pin-overlay').style.display = 'none';
+  document.getElementById('admin-content').style.display = 'block';
+  loadProspects();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+const useCaseLabels = { 'recruiting':'Recruiting', 'exit-interview':'Exit Interview', 'skill-validation':'Skill Validation' };
+
+function maskAgentId(id) {
+  if (!id) return '';
+  return '•••••• ' + id.slice(-6);
+}
+
+function demoUrl(id) {
+  return `${window.location.origin}/demo/${id}`;
+}
+
+function showFormMsg(msg, type) {
+  const el = document.getElementById('form-msg');
+  el.textContent = msg;
+  el.className = 'form-msg ' + type;
+  if (type === 'success') setTimeout(() => { el.textContent = ''; el.className = 'form-msg'; }, 3000);
+}
+
+async function copyText(text, btn) {
+  try {
+    await navigator.clipboard.writeText(text);
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+  } catch (_) {}
+}
+
+// ── LOAD PROSPECTS ────────────────────────────────────────────────────────
+async function loadProspects() {
+  try {
+    const res = await fetch('/prospects');
+    const prospects = await res.json();
+    renderGrid(prospects);
+  } catch (err) {
+    console.error('Failed to load prospects:', err);
+  }
+}
+
+function renderGrid(prospects) {
+  const grid  = document.getElementById('prospects-grid');
+  const badge = document.getElementById('count-badge');
+  badge.textContent = `${prospects.length} prospect${prospects.length !== 1 ? 's' : ''}`;
+
+  if (prospects.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><strong>No prospects yet.</strong>Add your first one above.</div>`;
+    return;
+  }
+
+  grid.innerHTML = '';
+  prospects.forEach(p => grid.appendChild(buildCard(p)));
+}
+
+// ── BUILD CARD ────────────────────────────────────────────────────────────
+function buildCard(p) {
+  const card = document.createElement('div');
+  card.className = 'prospect-card';
+  card.id = `card-${p.id}`;
+  card.innerHTML = `
+    <div class="card-top">
+      <div class="card-company">${p.companyName}</div>
+      <div class="card-job">${p.jobTitle}</div>
+      <span class="use-case-badge ${p.useCase}">${useCaseLabels[p.useCase] || p.useCase}</span>
+    </div>
+
+    <div class="card-divider"></div>
+
+    <div class="card-row">
+      <span class="row-label">Agent ID</span>
+      <span class="row-value">
+        <span class="masked-id">${maskAgentId(p.agentId)}</span>
+        <button class="icon-btn" onclick="copyText('${p.agentId}', this)">Copy</button>
+      </span>
+    </div>
+
+    <div class="card-row">
+      <span class="row-label">Status</span>
+      <label class="status-toggle" onclick="toggleStatus('${p.id}', this)">
+        <div class="toggle-track ${p.status === 'active' ? 'on' : ''}" id="track-${p.id}">
+          <div class="toggle-thumb"></div>
+        </div>
+        <span class="toggle-label ${p.status === 'active' ? 'on' : 'off'}" id="tlabel-${p.id}">
+          ${p.status === 'active' ? 'Active' : 'Inactive'}
+        </span>
+      </label>
+    </div>
+
+    <div class="card-row">
+      <span class="row-label">Demo Link</span>
+      <span class="row-value" style="flex:1;min-width:0;gap:6px;">
+        <span class="demo-url-text">${demoUrl(p.id)}</span>
+        <button class="icon-btn" onclick="copyText('${demoUrl(p.id)}', this)">Copy</button>
+        <a class="icon-btn" href="${demoUrl(p.id)}" target="_blank">Open</a>
+      </span>
+    </div>
+
+    <div class="card-actions">
+      <button class="btn-edit" onclick="showEdit('${p.id}')">Edit</button>
+      <button class="btn-delete" onclick="showDeleteConfirm('${p.id}')">Delete</button>
+      <div class="delete-confirm" id="del-${p.id}">
+        <span>Delete this prospect?</span>
+        <button class="btn-confirm-del" onclick="deleteProspect('${p.id}')">Yes</button>
+        <button class="btn-cancel-del" onclick="hideDeleteConfirm('${p.id}')">Cancel</button>
+      </div>
+    </div>
+
+    <div class="edit-state" id="edit-${p.id}">
+      <div class="edit-grid">
+        <div class="edit-field">
+          <label>Company Name</label>
+          <input type="text" id="e-company-${p.id}" value="${p.companyName}"/>
+        </div>
+        <div class="edit-field">
+          <label>Job Title</label>
+          <input type="text" id="e-jobtitle-${p.id}" value="${p.jobTitle}"/>
+        </div>
+        <div class="edit-field">
+          <label>Use Case</label>
+          <select id="e-usecase-${p.id}">
+            <option value="recruiting" ${p.useCase==='recruiting'?'selected':''}>Recruiting</option>
+            <option value="exit-interview" ${p.useCase==='exit-interview'?'selected':''}>Exit Interview</option>
+            <option value="skill-validation" ${p.useCase==='skill-validation'?'selected':''}>Skill Validation</option>
+          </select>
+        </div>
+        <div class="edit-field">
+          <label>Retell Agent ID</label>
+          <input type="text" id="e-agentid-${p.id}" value="${p.agentId}"/>
+        </div>
+      </div>
+      <div class="edit-actions">
+        <button class="btn-save" onclick="saveEdit('${p.id}')">Save</button>
+        <button class="btn-cancel-edit" onclick="hideEdit('${p.id}')">Cancel</button>
+        <span class="edit-msg" id="emsg-${p.id}"></span>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+// ── ADD PROSPECT ──────────────────────────────────────────────────────────
+async function addProspect() {
+  const companyName = document.getElementById('f-company').value.trim();
+  const jobTitle    = document.getElementById('f-jobtitle').value.trim();
+  const useCase     = document.getElementById('f-usecase').value;
+  const agentId     = document.getElementById('f-agentid').value.trim();
+
+  if (!companyName || !jobTitle || !agentId) {
+    showFormMsg('Please fill in all fields.', 'error'); return;
+  }
+
+  const btn = document.getElementById('btn-add');
+  btn.disabled = true;
+  try {
+    const res = await fetch('/prospects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ companyName, jobTitle, agentId, useCase }),
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
+    document.getElementById('f-company').value  = '';
+    document.getElementById('f-jobtitle').value = '';
+    document.getElementById('f-agentid').value  = '';
+    document.getElementById('f-usecase').value  = 'recruiting';
+    showFormMsg('Prospect added.', 'success');
+    loadProspects();
+  } catch (err) {
+    showFormMsg(err.message || 'Failed to add prospect.', 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── STATUS TOGGLE ─────────────────────────────────────────────────────────
+async function toggleStatus(id, el) {
+  const track  = document.getElementById(`track-${id}`);
+  const label  = document.getElementById(`tlabel-${id}`);
+  const isOn   = track.classList.contains('on');
+  const newStatus = isOn ? 'inactive' : 'active';
+  track.classList.toggle('on', !isOn);
+  label.className = `toggle-label ${!isOn ? 'on' : 'off'}`;
+  label.textContent = !isOn ? 'Active' : 'Inactive';
+  try {
+    await fetch(`/prospects/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus }),
+    });
+  } catch (_) {}
+}
+
+// ── EDIT ──────────────────────────────────────────────────────────────────
+function showEdit(id) {
+  document.getElementById(`edit-${id}`).classList.add('show');
+}
+function hideEdit(id) {
+  document.getElementById(`edit-${id}`).classList.remove('show');
+  document.getElementById(`emsg-${id}`).textContent = '';
+}
+async function saveEdit(id) {
+  const companyName = document.getElementById(`e-company-${id}`).value.trim();
+  const jobTitle    = document.getElementById(`e-jobtitle-${id}`).value.trim();
+  const useCase     = document.getElementById(`e-usecase-${id}`).value;
+  const agentId     = document.getElementById(`e-agentid-${id}`).value.trim();
+  const msg         = document.getElementById(`emsg-${id}`);
+
+  if (!companyName || !jobTitle || !agentId) { msg.textContent = 'All fields required.'; return; }
+
+  try {
+    const res = await fetch(`/prospects/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ companyName, jobTitle, agentId, useCase }),
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
+    hideEdit(id);
+    loadProspects();
+  } catch (err) {
+    msg.textContent = err.message || 'Save failed.';
+  }
+}
+
+// ── DELETE ────────────────────────────────────────────────────────────────
+function showDeleteConfirm(id) {
+  document.getElementById(`del-${id}`).classList.add('show');
+}
+function hideDeleteConfirm(id) {
+  document.getElementById(`del-${id}`).classList.remove('show');
+}
+async function deleteProspect(id) {
+  try {
+    await fetch(`/prospects/${id}`, { method: 'DELETE' });
+    loadProspects();
+  } catch (_) {}
+}
+</script>
+</body>
+</html>
